@@ -33,10 +33,17 @@ protected:
     void mousePressEvent ( QMouseEvent * even);
     void mouseMoveEvent(QMouseEvent * event);
     void wheelEvent(QWheelEvent *event);
+    void dragEnterEvent(QDragEnterEvent *e);
+    void dragLeaveEvent(QDragLeaveEvent *e);
+    void dropEvent(QDropEvent *e);
+    void dragMoveEvent(QDragMoveEvent * event);
+    //void dragDropEvent
+
 signals:
     void signalScaleUp(int steps);
     void signalMoveTo(float x,float y);
-public slots:
+private slots:
+
 
 private:
 

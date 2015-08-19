@@ -44,6 +44,8 @@ MainWindow::MainWindow(QWidget *parent) :
     scene_.addItem(&currentFrame_);
     ui->graphicsView->setScene(&scene_);
 
+    setAcceptDrops(true);
+
     QObject::connect(&vw_,SIGNAL(signalGUI(const QString&)),this,SLOT(setStatusBar(const QString&)));
     QObject::connect(&vw_,SIGNAL(signalError(const QString&)),this,SLOT(show_alert(const QString&)));
     QObject::connect(ui->graphicsView,SIGNAL(signalScaleUp(int)),
@@ -342,11 +344,16 @@ void MainWindow::on_actionAbout_triggered()
 {
     QString titleText("About");
     QMessageBox::about(this,titleText,
-                       "<center><font size=6><b> QMovie </b></font><br>"
-                       "<br>"
+                       "<center><font size=6><b> frameboy </b></font><br>"
                        "<font size=\"3\">"
-                       "Version 1.00"
-                       "<br><br>"
+                       "Version: "
+                       GIT_CURRENT_SHA1
+                       " \t\t"
+                       __DATE__
+                       " "
+                       __TIME__
+                       "<br>"
+                       "<br>"
                        "Combine a sequence of images with a watermark ond render a AVI video."
                        "<br><br>"
                        "Copyright &copy; 2015 kenny@wook.de"
@@ -380,4 +387,45 @@ void MainWindow::on_actionHelp_triggered()
                            "<li>Start conversion</li>"
                            "</ul>"
                            "</ol>");
+}
+
+/*
+void MainWindow::dropEvent(QDropEvent* event){
+    const QMimeData* mimeData = event->mimeData();
+
+    qDebug()<<"drop!";
+
+    // check for our needed mime type, here a file or a list of files
+     if (true or mimeData->hasUrls())
+     {
+         QStringList pathList;
+         QList<QUrl> urlList = mimeData->urls();
+
+        // extract the local paths of the files
+         for (int i = 0; i < urlList.size(); ++i)
+         {
+            pathList.append(urlList.at(i).toLocalFile());
+            qDebug()<<urlList.at(i).toLocalFile();
+         }
+
+         // call a function to open the files
+         //openFiles(pathList);
+     }
+}
+*/
+
+void MainWindow::dragEnterEvent(QDragEnterEvent *e)
+{
+    if (e->mimeData()->hasUrls()) {
+        e->acceptProposedAction();
+    }
+}
+
+void MainWindow::dropEvent(QDropEvent *e)
+{
+    foreach (const QUrl &url, e->mimeData()->urls()) {
+        const QString &fileName = url.toLocalFile();
+
+        qDebug() << "Dropped file:" << fileName;
+    }
 }

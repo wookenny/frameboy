@@ -23,4 +23,6 @@ class QString;
 
 QString removePath(const QString& s);
 
+#define VERSION "1.00"
+
 #endif // COMMON_H

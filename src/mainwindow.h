@@ -79,6 +79,10 @@ private slots:
     void on_buttonAddImages_clicked();
     void on_actionAbout_triggered();
     void on_actionHelp_triggered();
+
+    void dropEvent(QDropEvent* event);
+    void dragEnterEvent(QDragEnterEvent *e);
+
 };
 
 

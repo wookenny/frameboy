@@ -19,11 +19,13 @@
 #include <QDebug>
 #include <QTransform>
 #include <QResizeEvent>
+#include <QUrl>
 
 
 MyGraphicsView::MyGraphicsView(QWidget *parent) :  QGraphicsView(parent)
 {
     this->setRenderHint(QPainter::Antialiasing,true);
+    this->setAcceptDrops(true);
 }
 
 
@@ -55,4 +57,31 @@ void MyGraphicsView::wheelEvent(QWheelEvent *event){
 
     event->accept();
     emit signalScaleUp(numSteps);
+}
+
+void MyGraphicsView::dragEnterEvent(QDragEnterEvent *e)
+{
+    if (e->mimeData()->hasUrls()) {
+        e->acceptProposedAction();
+    }
+}
+
+void MyGraphicsView::dropEvent(QDropEvent *e)
+{
+    foreach (const QUrl &url, e->mimeData()->urls()) {
+        const QString &fileName = url.toLocalFile();
+
+        qDebug() << "ladida file:" << fileName;
+    }
+}
+
+
+void MyGraphicsView::dragMoveEvent(QDragMoveEvent * e){
+    if (e->mimeData()->hasUrls()) {
+        e->acceptProposedAction();
+    }
+}
+
+void MyGraphicsView::dragLeaveEvent(QDragLeaveEvent *e){
+        e->accept();
 }

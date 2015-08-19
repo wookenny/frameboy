@@ -43,7 +43,7 @@ Q_OBJECT
         bool copyImages_(int threads=0);
         bool removeDir_(const QString &) const;
         bool removeTempDir_() const{ return removeDir_(temp_dir_) ;}
-        unsigned int threads_ = std::thread::hardware_concurrency();
+        //unsigned int threads_ = std::thread::hardware_concurrency();
 
     signals:
         void signalGUI(const QString &msg);

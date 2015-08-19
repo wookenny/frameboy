@@ -13,6 +13,9 @@ TEMPLATE = app
 CONFIG += c++11
 QMAKE_CXXFLAGS += -std=c++11
 
+DEFINES += GIT_CURRENT_SHA1="\\\"$(shell git -C \""$$_PRO_FILE_PWD_"\" rev-parse --short  HEAD)\\\""
+
+
 INCLUDEPATH += ./src
 
 SOURCES += src/main.cpp\
@@ -29,6 +32,8 @@ HEADERS  += src/mainwindow.h \
     src/qgraphicspixmapitemwatermark.h \
 
 FORMS    += src/mainwindow.ui 
+
+
 
 #unix {
    CONFIG += link_pkgconfig
