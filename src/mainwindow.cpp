@@ -220,7 +220,8 @@ void MainWindow::on_revert_button_clicked()
         --bottom;
         num_selected -= 2;
     }
-    showFrame(ui->frameList->currentItem());
+    if(ui->frameList->currentItem() != nullptr)
+        showFrame(ui->frameList->currentItem());
     updateSlider_();
     ui->frameList->setFocus();
 }
