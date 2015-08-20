@@ -103,7 +103,7 @@ void MainWindow::on_actionLoad_Images_triggered()
 
 void MainWindow::on_frameList_itemDoubleClicked(QListWidgetItem *item)
 {
-    ui->horizontalSlider->setValue( ui->frameList->currentRow() );
+    ui->frameSlider->setValue( ui->frameList->currentRow() );
     showFrame(item);
 }
 
@@ -158,7 +158,7 @@ void MainWindow::showFrame(QListWidgetItem *i)
 
 }
 
-void MainWindow::on_horizontalSlider_valueChanged(int value)
+void MainWindow::on_frameSlider_valueChanged(int value)
 {
     QListWidgetItem *i = ui->frameList->item(value);
     showFrame(i);
@@ -168,7 +168,7 @@ void MainWindow::on_horizontalSlider_valueChanged(int value)
 void MainWindow::adjustDuration(){
     double duration = ui->frameList->count();
     duration /= ui->framerateSpinBox->value();
-    ui->label_2->setText("Duration: "+QString::number(duration,'f',2) + " s");
+    ui->labelDuration->setText("Duration: "+QString::number(duration,'f',2) + " s");
 }
 
 void MainWindow::on_framerateSpinBox_valueChanged(double )
@@ -285,10 +285,10 @@ void MainWindow::on_load_watermark_clicked()
 
 void MainWindow::updateSlider_(){
        if(ui->frameList->count()!=0)
-           ui->horizontalSlider->setRange(0,ui->frameList->count()-1);
+           ui->frameSlider->setRange(0,ui->frameList->count()-1);
        else{
-           ui->horizontalSlider->setValue(0);
-           ui->horizontalSlider->setRange(0,0);
+           ui->frameSlider->setValue(0);
+           ui->frameSlider->setRange(0,0);
        }
 }
 
@@ -311,11 +311,17 @@ void MainWindow::on_doubleSpinBox_valueChanged(double v)
 void MainWindow::on_dial_2_valueChanged(int value)
 {
     currentFrame_.changePosX(value/100.);
+    QString tooltip = "watermark position on x-axis: ";
+    tooltip += QString::number(value)+"%";
+    ui->dial_2->setToolTip(tooltip);
 }
 
 void MainWindow::on_dial_valueChanged(int value)
 {
     currentFrame_.changePosY(value/100.);
+    QString tooltip = "watermark position on y-axis: ";
+    tooltip += QString::number(value)+"%";
+    ui->dial->setToolTip(tooltip);
 }
 
 void MainWindow::scaleUpWatermark(int steps){

@@ -364,7 +364,7 @@ background-color: rgb(255, 255, 255);</string>
           </widget>
          </item>
          <item row="1" column="2">
-          <widget class="QLabel" name="label">
+          <widget class="QLabel" name="labelFramerate">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
              <horstretch>1</horstretch>
@@ -383,7 +383,7 @@ background-color: rgb(255, 255, 255);</string>
           </widget>
          </item>
          <item row="1" column="4">
-          <widget class="QLabel" name="label_2">
+          <widget class="QLabel" name="labelDuration">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
              <horstretch>0</horstretch>
@@ -405,7 +405,7 @@ background-color: rgb(255, 255, 255);</string>
           </widget>
          </item>
          <item row="1" column="0">
-          <widget class="QLabel" name="label_3">
+          <widget class="QLabel" name="labelTargetfile">
            <property name="text">
             <string>Targetfile: </string>
            </property>
@@ -484,7 +484,7 @@ background-color: rgb(255, 255, 255);</string>
           </widget>
          </item>
          <item>
-          <widget class="QSlider" name="horizontalSlider">
+          <widget class="QSlider" name="frameSlider">
            <property name="maximum">
             <number>0</number>
            </property>
@@ -512,7 +512,7 @@ background-color: rgb(255, 255, 255);</string>
              <number>0</number>
             </property>
             <item>
-             <widget class="QLabel" name="label_5">
+             <widget class="QLabel" name="labelSize">
               <property name="text">
                <string>Size: </string>
               </property>
@@ -557,7 +557,7 @@ background-color: rgb(255, 255, 255);</string>
              </spacer>
             </item>
             <item>
-             <widget class="QLabel" name="label_4">
+             <widget class="QLabel" name="labelOpacity">
               <property name="text">
                <string>Opacity:  </string>
               </property>
@@ -601,7 +601,7 @@ background-color: rgb(255, 255, 255);</string>
             <item>
              <widget class="QDial" name="dial_2">
               <property name="toolTip">
-               <string>watermark position on x-axis</string>
+               <string>watermark position on x-axis: 90%</string>
               </property>
               <property name="maximum">
                <number>100</number>
@@ -620,7 +620,7 @@ background-color: rgb(255, 255, 255);</string>
             <item>
              <widget class="QDial" name="dial">
               <property name="toolTip">
-               <string>watermark position on y-axis</string>
+               <string>watermark position on y-axis: 90%</string>
               </property>
               <property name="maximum">
                <number>100</number>

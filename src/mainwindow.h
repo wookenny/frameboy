@@ -59,7 +59,7 @@ private slots:
     void on_toolButton_clicked();
     void on_pushButton_clicked();
     void setStatusBar(const QString &string);
-    void on_horizontalSlider_valueChanged(int value);
+    void on_frameSlider_valueChanged(int value);
     void on_framerateSpinBox_valueChanged(double value);
     void show_alert(const QString &str);
     void on_delete_button_clicked();
