@@ -16,6 +16,7 @@
 **/
 
 #include "graphicsviewscaling.h"
+#include "mainwindow.h"
 #include <QDebug>
 #include <QTransform>
 #include <QResizeEvent>
@@ -70,8 +71,14 @@ void GraphicsViewScaling::dropEvent(QDropEvent *e)
 {
     foreach (const QUrl &url, e->mimeData()->urls()) {
         const QString &fileName = url.toLocalFile();
-
-        qDebug() << "ladida file:" << fileName;
+        if ( fileName.endsWith(".jpg",Qt::CaseInsensitive) or
+             fileName.endsWith(".jpeg",Qt::CaseInsensitive) or
+             fileName.endsWith(".png",Qt::CaseInsensitive) or
+             fileName.endsWith(".gif",Qt::CaseInsensitive) or
+             fileName.endsWith(".xpm",Qt::CaseInsensitive) ){
+            this->main->loadWatermark(fileName);
+            return;
+        }
     }
 }
 

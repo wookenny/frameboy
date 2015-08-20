@@ -43,7 +43,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
     scene_.addItem(&currentFrame_);
     ui->graphicsView->setScene(&scene_);
-
+    ui->graphicsView->setMainwindow(this);
     setAcceptDrops(true);
 
     QObject::connect(&vw_,SIGNAL(signalGUI(const QString&)),this,SLOT(setStatusBar(const QString&)));
@@ -68,16 +68,21 @@ void MainWindow::on_actionExit_triggered()
     qApp->quit();
 }
 
-void MainWindow::loadImages()
+
+
+void MainWindow::loadImages( )
 {
     QStringList files = QFileDialog::getOpenFileNames(
                             this,
                              tr("Select multiple images to open"),
                              QString(), // "/home",
-                             tr("Images (*.png *.xpm *.jpg)"));
+                             tr("Images (*.png *.xpm *.jpg *.jpeg)"));
 
+    loadImages(files);
+}
+
+void MainWindow::loadImages(const QStringList& files){
     bool was_empty = ui->frameList->count()==0;
-    //ui->frameList->clear();
     for(auto it = files.begin(); it!=files.end();++it){
         QListWidgetItem *item = new QListWidgetItem();
         item->setData(Qt::DisplayRole, removePath(*it) );
@@ -274,10 +279,16 @@ void MainWindow::loadWatermark()
                         tr("Select an image to open as watermark"),
                         QString(), // "/home",
                         tr("Images (*.png *.xpm *.jpg *.jpeg *.gif)"));
-
-    vw_.setWatermark(file.toStdString());
-    currentFrame_.setWatermark(QPixmap(file));
+    loadWatermark(file);
 }
+
+void MainWindow::loadWatermark(const QString& watermark)
+{
+    vw_.setWatermark(watermark.toStdString());
+    currentFrame_.setWatermark(QPixmap(watermark));
+}
+
+
 
 void MainWindow::on_load_watermark_clicked()
 {
@@ -396,30 +407,7 @@ void MainWindow::on_actionHelp_triggered()
                            "</ol>");
 }
 
-/*
-void MainWindow::dropEvent(QDropEvent* event){
-    const QMimeData* mimeData = event->mimeData();
 
-    qDebug()<<"drop!";
-
-    // check for our needed mime type, here a file or a list of files
-     if (true or mimeData->hasUrls())
-     {
-         QStringList pathList;
-         QList<QUrl> urlList = mimeData->urls();
-
-        // extract the local paths of the files
-         for (int i = 0; i < urlList.size(); ++i)
-         {
-            pathList.append(urlList.at(i).toLocalFile());
-            qDebug()<<urlList.at(i).toLocalFile();
-         }
-
-         // call a function to open the files
-         //openFiles(pathList);
-     }
-}
-*/
 
 void MainWindow::dragEnterEvent(QDragEnterEvent *e)
 {
@@ -430,9 +418,16 @@ void MainWindow::dragEnterEvent(QDragEnterEvent *e)
 
 void MainWindow::dropEvent(QDropEvent *e)
 {
+    QStringList list;
     foreach (const QUrl &url, e->mimeData()->urls()) {
-        const QString &fileName = url.toLocalFile();
+        const QString &name = url.toLocalFile();
 
-        qDebug() << "Dropped file:" << fileName;
+        if( name.endsWith(".jpg",Qt::CaseInsensitive) or
+            name.endsWith(".jpeg",Qt::CaseInsensitive) or
+            name.endsWith(".png",Qt::CaseInsensitive) or
+            name.endsWith(".xpm",Qt::CaseInsensitive)){
+            list.append(name);
+        }
     }
+    loadImages(list);
 }

@@ -21,12 +21,15 @@
 #include <QGraphicsView>
 #include <QMouseEvent>
 
+class MainWindow;
 
 class GraphicsViewScaling : public QGraphicsView
 {
     Q_OBJECT
 public:
     explicit GraphicsViewScaling(QWidget *parent = 0);
+
+    void setMainwindow(MainWindow *m){main = m;}
 
 protected:
     void resizeEvent(QResizeEvent *event);
@@ -46,7 +49,7 @@ private slots:
 
 
 private:
-
+    MainWindow* main = nullptr;
 };
 
 #endif // GRAPHICSVIEWSCALING_H

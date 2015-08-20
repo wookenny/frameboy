@@ -21,6 +21,7 @@
 #include <QMainWindow>
 #include <QListWidgetItem>
 #include <QGraphicsScene>
+#include <QStringList>
 #include "graphicspixmapitemwatermark.h"
 #include "videowriter.h"
 
@@ -40,7 +41,9 @@ public:
     void adjustDuration();
 
     void loadImages();
+    void loadImages(const QStringList& files);
     void loadWatermark();
+    void loadWatermark(const QString& watermark);
 
 private:
     Ui::MainWindow *ui;

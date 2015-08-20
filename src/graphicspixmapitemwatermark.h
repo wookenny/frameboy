@@ -35,7 +35,7 @@ public:
 
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
 
-    void setWatermark(QPixmap w){watermark_ = w;}
+    void setWatermark(QPixmap w){watermark_ = w; this->hide(); this->show();}
     void changeOpacity(float value);
     void changeSize(float value){ size_ = value; }
     void scaleSize(int steps){  if(watermark_.isNull()) return;
