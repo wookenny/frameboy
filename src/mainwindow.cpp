@@ -19,7 +19,7 @@
 #include "ui_mainwindow.h"
 
 
-#include "mygraphicsview.h"
+#include "graphicsviewscaling.h"
 #include "videowriter.h"
 #include "common.h"
 

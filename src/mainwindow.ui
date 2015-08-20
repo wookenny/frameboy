@@ -471,7 +471,7 @@ background-color: rgb(255, 255, 255);</string>
           <number>3</number>
          </property>
          <item>
-          <widget class="MyGraphicsView" name="graphicsView">
+          <widget class="GraphicsViewScaling" name="graphicsView">
            <property name="styleSheet">
             <string notr="true">background-image: url(:/icons/add.png);
 background-position: center center;
@@ -769,9 +769,9 @@ background-color: rgb(255, 255, 255);</string>
  <layoutdefault spacing="6" margin="11"/>
  <customwidgets>
   <customwidget>
-   <class>MyGraphicsView</class>
+   <class>GraphicsViewScaling</class>
    <extends>QGraphicsView</extends>
-   <header location="global">mygraphicsview.h</header>
+   <header>graphicsviewscaling.h</header>
   </customwidget>
  </customwidgets>
  <resources>

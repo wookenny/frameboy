@@ -20,16 +20,16 @@ INCLUDEPATH += ./src
 
 SOURCES += src/main.cpp\
         src/mainwindow.cpp \
-    src/mygraphicsview.cpp \
     src/videowriter.cpp \
     src/common.cpp \
-    src/qgraphicspixmapitemwatermark.cpp \
+    src/graphicsviewscaling.cpp \
+    src/graphicspixmapitemwatermark.cpp
 
 HEADERS  += src/mainwindow.h \
-    src/mygraphicsview.h \
     src/videowriter.h \
     src/common.h \
-    src/qgraphicspixmapitemwatermark.h \
+    src/graphicsviewscaling.h \
+    src/graphicspixmapitemwatermark.h
 
 FORMS    += src/mainwindow.ui 
 

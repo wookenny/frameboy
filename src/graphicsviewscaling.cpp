@@ -15,21 +15,21 @@
 *    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "mygraphicsview.h"
+#include "graphicsviewscaling.h"
 #include <QDebug>
 #include <QTransform>
 #include <QResizeEvent>
 #include <QUrl>
 
 
-MyGraphicsView::MyGraphicsView(QWidget *parent) :  QGraphicsView(parent)
+GraphicsViewScaling::GraphicsViewScaling(QWidget *parent) :  QGraphicsView(parent)
 {
     this->setRenderHint(QPainter::Antialiasing,true);
     this->setAcceptDrops(true);
 }
 
 
-void MyGraphicsView::resizeEvent(QResizeEvent *event)
+void GraphicsViewScaling::resizeEvent(QResizeEvent *event)
 {
 
     fitInView(this->sceneRect(),Qt::KeepAspectRatio);
@@ -37,21 +37,21 @@ void MyGraphicsView::resizeEvent(QResizeEvent *event)
     event->accept();
 }
 
-void MyGraphicsView::mousePressEvent ( QMouseEvent * event){
+void GraphicsViewScaling::mousePressEvent ( QMouseEvent * event){
 
     QPointF p = this->mapToScene(QPoint(event->x(),event->y()));
     event->accept();
     emit signalMoveTo(p.x(),p.y());
 }
 
-void MyGraphicsView::mouseMoveEvent(QMouseEvent * event)
+void GraphicsViewScaling::mouseMoveEvent(QMouseEvent * event)
 {
     QPointF p = this->mapToScene(QPoint(event->x(),event->y()));
     event->accept();
     emit signalMoveTo(p.x(),p.y());
 }
 
-void MyGraphicsView::wheelEvent(QWheelEvent *event){
+void GraphicsViewScaling::wheelEvent(QWheelEvent *event){
     int numDegrees = event->delta() / 8;
     int numSteps = numDegrees / 15;
 
@@ -59,14 +59,14 @@ void MyGraphicsView::wheelEvent(QWheelEvent *event){
     emit signalScaleUp(numSteps);
 }
 
-void MyGraphicsView::dragEnterEvent(QDragEnterEvent *e)
+void GraphicsViewScaling::dragEnterEvent(QDragEnterEvent *e)
 {
     if (e->mimeData()->hasUrls()) {
         e->acceptProposedAction();
     }
 }
 
-void MyGraphicsView::dropEvent(QDropEvent *e)
+void GraphicsViewScaling::dropEvent(QDropEvent *e)
 {
     foreach (const QUrl &url, e->mimeData()->urls()) {
         const QString &fileName = url.toLocalFile();
@@ -76,12 +76,12 @@ void MyGraphicsView::dropEvent(QDropEvent *e)
 }
 
 
-void MyGraphicsView::dragMoveEvent(QDragMoveEvent * e){
+void GraphicsViewScaling::dragMoveEvent(QDragMoveEvent * e){
     if (e->mimeData()->hasUrls()) {
         e->acceptProposedAction();
     }
 }
 
-void MyGraphicsView::dragLeaveEvent(QDragLeaveEvent *e){
+void GraphicsViewScaling::dragLeaveEvent(QDragLeaveEvent *e){
         e->accept();
 }

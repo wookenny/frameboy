@@ -15,10 +15,10 @@
 *    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#include "qgraphicspixmapitemwatermark.h"
+#include "graphicspixmapitemwatermark.h"
 #include <QDebug>
 
-void QGraphicsPixmapItemWatermark::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
+void GraphicsPixmapItemWatermark::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
 {
     QGraphicsPixmapItem::paint(painter,option,widget);
 
@@ -46,11 +46,11 @@ void QGraphicsPixmapItemWatermark::paint(QPainter *painter, const QStyleOptionGr
 
 }
 
-void QGraphicsPixmapItemWatermark::changeOpacity(float value){
+void GraphicsPixmapItemWatermark::changeOpacity(float value){
     opacity_ = value;
 }
 
-void QGraphicsPixmapItemWatermark::changePos(float x, float y){
+void GraphicsPixmapItemWatermark::changePos(float x, float y){
 
     x = x/this->boundingRect().width();
     y = y/this->boundingRect().height();

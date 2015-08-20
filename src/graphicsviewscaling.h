@@ -15,18 +15,18 @@
 *    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#ifndef MYGRAPHICSVIEW_H
-#define MYGRAPHICSVIEW_H
+#ifndef GRAPHICSVIEWSCALING_H
+#define GRAPHICSVIEWSCALING_H
 
 #include <QGraphicsView>
 #include <QMouseEvent>
 
 
-class MyGraphicsView : public QGraphicsView
+class GraphicsViewScaling : public QGraphicsView
 {
     Q_OBJECT
 public:
-    explicit MyGraphicsView(QWidget *parent = 0);
+    explicit GraphicsViewScaling(QWidget *parent = 0);
 
 protected:
     void resizeEvent(QResizeEvent *event);
@@ -49,4 +49,4 @@ private:
 
 };
 
-#endif // MYGRAPHICSVIEW_H
+#endif // GRAPHICSVIEWSCALING_H

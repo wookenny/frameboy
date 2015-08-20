@@ -21,7 +21,7 @@
 #include <QMainWindow>
 #include <QListWidgetItem>
 #include <QGraphicsScene>
-#include "qgraphicspixmapitemwatermark.h"
+#include "graphicspixmapitemwatermark.h"
 #include "videowriter.h"
 
 namespace Ui {
@@ -45,7 +45,7 @@ public:
 private:
     Ui::MainWindow *ui;
     QGraphicsScene      scene_;
-    QGraphicsPixmapItemWatermark currentFrame_;
+    GraphicsPixmapItemWatermark currentFrame_;
     QString filename_;
     VideoWriterThread thread_;
     VideoWriter vw_;

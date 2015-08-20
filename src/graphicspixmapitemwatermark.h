@@ -15,17 +15,17 @@
 *    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 **/
 
-#ifndef QGRAPHICSPIXMAPITEMWATERMARK_H
-#define QGRAPHICSPIXMAPITEMWATERMARK_H
+#ifndef GRAPHICSPIXMAPITEMWATERMARK_H
+#define GRAPHICSPIXMAPITEMWATERMARK_H
 
 #include <QGraphicsPixmapItem>
 #include <QPainter>
 
-class QGraphicsPixmapItemWatermark : public QGraphicsPixmapItem
+class GraphicsPixmapItemWatermark : public QGraphicsPixmapItem
 {
 
 public:
-    QGraphicsPixmapItemWatermark(QGraphicsItem *parent=nullptr): QGraphicsPixmapItem(parent){
+    GraphicsPixmapItemWatermark(QGraphicsItem *parent=nullptr): QGraphicsPixmapItem(parent){
         show_watermark_ = true;
         opacity_ = .5;
         size_ = .1;
@@ -61,4 +61,4 @@ private:
 
 };
 
-#endif // QGRAPHICSPIXMAPITEMWATERMARK_H
+#endif // GRAPHICSPIXMAPITEMWATERMARK_H
