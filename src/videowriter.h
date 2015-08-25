@@ -22,7 +22,7 @@
 #include <QDir>
 #include <QString>
 #include <QThread>
-#include <thread>
+#include <QDebug>
 
 class VideoWriter : public QObject{
 Q_OBJECT
@@ -40,17 +40,17 @@ Q_OBJECT
 
         bool createTempDir_();
         bool writeVideoFromImages_();
-        bool copyImages_(int threads=0);
+        bool copyImages_();
         bool removeDir_(const QString &) const;
         bool removeTempDir_() const{ return removeDir_(temp_dir_) ;}
-        //unsigned int threads_ = std::thread::hardware_concurrency();
+        unsigned int nthreads_ = QThread::idealThreadCount();
 
     signals:
         void signalGUI(const QString &msg);
         void signalError(const QString &msg);
 
     public:
-
+        void sendSignalGUI(const QString &msg);
         void setOutputFilename(std::string s) { filename_ = s; }
         void setFramerate(double fps) { fps_ = fps;}
         void setWatermark(std::string w)  { watermark_ = w;}
@@ -61,6 +61,7 @@ Q_OBJECT
         void setImages(QStringList l)     { images_ = l; }
 
         void writeVideo();
+
 };
 
 
@@ -81,5 +82,28 @@ protected:
         {
             vw_->writeVideo();
         }
+};
+
+
+
+class ImageWriter: public QThread
+{
+public:
+    explicit ImageWriter(const QImage* w,const QString& d, QStringList &i,uint id, uint n, float s, float x, float y, float o, VideoWriter* v):
+                watermark_(w), temp_dir_(d), images_(i), threadID_(id), numThreads_(n),scaleWatermark_(s), posx_(x), posy_(y), opacityWatermark_(o),vw_(v){}
+
+    void run();
+
+
+private:
+    const QImage *watermark_;
+    const QString& temp_dir_;
+    QStringList &images_;
+    uint threadID_;
+    uint numThreads_;
+    float scaleWatermark_;
+    float posx_; float posy_;
+    float opacityWatermark_;
+    VideoWriter* vw_;
 };
 #endif // VIDEOWRITER_H

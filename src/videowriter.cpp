@@ -25,15 +25,18 @@
 #include <QPen>
 #include <QPainter>
 #include <QDebug>
+#include <QElapsedTimer>
 
-#include <thread>
-#include <future>
 
 //open cv
 #include <cv.h>
 #include <highgui.h>
 
 #include "common.h"
+
+void VideoWriter::sendSignalGUI(const QString &msg){
+    emit signalGUI(msg);
+}
 
 bool VideoWriter::createTempDir_() {
     temp_dir_ = QDir::tempPath()+QDir::separator()+"makemovie";
@@ -117,6 +120,8 @@ bool VideoWriter::writeVideoFromImages_(){
 
 
 void VideoWriter::writeVideo(){
+    QElapsedTimer timer;
+    timer.start();
 
     if(filename_==""){
         emit signalError("Please choose an output filename.");
@@ -155,39 +160,58 @@ void VideoWriter::writeVideo(){
     if (not success)
         return;
 
-    msg = "video written: ";
+    float ms = timer.elapsed()/1000.;
+    msg = "video written in ";
+    msg += QString::number(ms);
+    msg += " seconds: ";
     msg += QString::fromStdString(filename_);
     emit signalGUI(msg);
 }
 
 
-bool VideoWriter::copyImages_(int threads){
+bool VideoWriter::copyImages_(){
 
     bool use_watermark_ = (watermark_!="");
     QImage watermark;
+
     if(use_watermark_)
         watermark = QImage(watermark_.c_str());
 
-    unsigned int count = 0;
-    for (int i = 0; i < images_.size(); ++i){
+    //create threads and start them
+    std::vector<ImageWriter*> threads;
+    for(uint i=0; i<nthreads_;++i)
+        threads.push_back(new ImageWriter( use_watermark_ ? &watermark : nullptr,
+                                    temp_dir_, images_, i, nthreads_, scale_watermark_, posX_, posY_, opacity_,this) );
+
+    for(uint i=0; i<threads.size();++i)
+        threads[i]->start();
+    for(uint i=0; i<threads.size();++i)
+        threads[i]->wait();
+    for(uint i=0; i<threads.size();++i)
+        delete threads[i];
+
+    return true;
+}
+
+
+void ImageWriter::run()
+{
+
+    for (int i = threadID_; i < images_.size(); i+=numThreads_){
         QString file = images_.at(i);
-        QString filename = QString::number(count);
+        QString filename = QString::number(i);
         filename = filename.rightJustified(4, '0');
         filename += ".png";
         QString new_file = temp_dir_ + QDir::separator() + filename;
-        ++count;
 
         if(QFile(file).size()==0){
             QString msg = "File "+file+" seems to be invalid!";
             qDebug()<<msg;
-            emit signalError(msg);
-            emit signalGUI("A file seems to be invalid!");
-            removeTempDir_();
-            //return false;
+            //TODO: how to handle error?
         }
 
         bool image_copied = false;
-        if(not use_watermark_ and file.endsWith(".png",Qt::CaseInsensitive)){
+        if(watermark_==nullptr and file.endsWith(".png",Qt::CaseInsensitive)){
             image_copied = QFile::copy(file, new_file);
         }
         if(not image_copied){
@@ -196,34 +220,29 @@ bool VideoWriter::copyImages_(int threads){
             if(not loaded){
                 QString msg = "File "+file+" could not be loaded!";
                 qDebug()<<msg;
-                emit signalError(msg);
-                emit signalGUI("Image could not be opened!");
-                removeTempDir_();
-                //return false;
+                //todo: how do handle error?
             }
 
-            if(use_watermark_  and scale_watermark_ >0 ){
+            if( watermark_ != nullptr){
                 QPainter painter(&image);
+                QImage wm = *watermark_;
+                wm = wm.scaled(image.size()*scaleWatermark_, Qt::KeepAspectRatio, Qt::SmoothTransformation);
 
-
-                watermark = watermark.scaled(image.size()*scale_watermark_, Qt::KeepAspectRatio, Qt::SmoothTransformation);
-                QPointF pos( posX_*.01*(image.width()-watermark.width()),
-                             posY_*.01*(image.height()-watermark.height()));
-                painter.setOpacity(opacity_);
-                painter.drawImage(pos, watermark);
+                QPointF pos( posx_*.01*(image.width()-wm.width()),
+                             posy_*.01*(image.height()-wm.height()));
+                painter.setOpacity(this->opacityWatermark_);
+                painter.drawImage(pos, wm);
             }
             if(!image.save(new_file)){
                 qDebug() << "saving modified image failed!\n";
                 qDebug() << file << " -> "<<new_file<<"\n";
-                QString msg = "Saving modified file as "+new_file+" failed!";
-                emit signalError(msg);
-                emit signalGUI("Saving modified file failed!");
-                removeTempDir_();
-                //return false;
+                //TODO: how to handle this?
             }
         }
-        QString msg = "modifying frames: "+ QString::number(100.*count/images_.size())+"%";
-        emit signalGUI(msg);
+        if(threadID_==0){
+            QString msg = "modifying frames: "+ QString::number(100.*i/images_.size())+"%";
+            vw_->sendSignalGUI(msg);
+        }
     }
-    return true;
 }
+

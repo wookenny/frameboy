@@ -59,8 +59,8 @@ private slots:
     void on_actionExit_triggered();
     void on_actionLoad_Images_triggered();
     void on_frameList_itemDoubleClicked(QListWidgetItem *item);
-    void on_toolButton_clicked();
-    void on_pushButton_clicked();
+    void on_destination_button_clicked();
+    void on_convertVideo_button_clicked();
     void setStatusBar(const QString &string);
     void on_frameSlider_valueChanged(int value);
     void on_framerateSpinBox_valueChanged(double value);
@@ -70,22 +70,24 @@ private slots:
     void on_up_button_clicked();
     void on_down_button_clicked();
     void on_load_watermark_clicked();
-    void on_doubleSpinBox_2_valueChanged(double arg1);
-    void on_doubleSpinBox_valueChanged(double arg1);
+    void on_sizeSpinbox_valueChanged(double arg1);
+    void on_opacitySpinbox_valueChanged(double arg1);
 
-    void on_dial_2_valueChanged(int value);
-    void on_dial_valueChanged(int value);
+    void on_watermark_x_dial_valueChanged(int value);
+    void on_watermark_y_dial_valueChanged(int value);
 
     void scaleUpWatermark(int steps);
     void moveWatermark(float x, float y);
     void on_actionLoad_Watermark_triggered();
-    void on_buttonAddImages_clicked();
+    void on_addImages_button_clicked();
     void on_actionAbout_triggered();
     void on_actionHelp_triggered();
 
     void dropEvent(QDropEvent* event);
     void dragEnterEvent(QDragEnterEvent *e);
 
+    void on_top_button_clicked();
+    void on_bottom_button_clicked();
 };
 
 

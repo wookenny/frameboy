@@ -62,13 +62,10 @@ MainWindow::~MainWindow()
 
 }
 
-
 void MainWindow::on_actionExit_triggered()
 {
     qApp->quit();
 }
-
-
 
 void MainWindow::loadImages( )
 {
@@ -112,7 +109,7 @@ void MainWindow::on_frameList_itemDoubleClicked(QListWidgetItem *item)
     showFrame(item);
 }
 
-void MainWindow::on_toolButton_clicked()
+void MainWindow::on_destination_button_clicked()
 {
 
     filename_ = QFileDialog::getSaveFileName(this,
@@ -129,13 +126,13 @@ void MainWindow::on_toolButton_clicked()
 
     int width = 20;
     if(filename_.size()<=width)
-        ui->toolButton->setText( filename_);
+        ui->destination_button->setText( filename_);
     else
-        ui->toolButton->setText("..." + filename_.right(width));
-    ui->toolButton->setToolTip(filename_);
+        ui->destination_button->setText("..." + filename_.right(width));
+    ui->destination_button->setToolTip(filename_);
 }
 
-void MainWindow::on_pushButton_clicked()
+void MainWindow::on_convertVideo_button_clicked()
 {
     vw_.setOutputFilename(filename_.toStdString());
     vw_.setFramerate(ui->framerateSpinBox->value());
@@ -144,10 +141,10 @@ void MainWindow::on_pushButton_clicked()
         list.append( ui->frameList->item(i)->data(Qt::UserRole + 1).toString() );
 
     vw_.setImages(list);
-    vw_.setWatermarkOpacity(ui->doubleSpinBox->value()/100);
-    vw_.setWatermarkScale( ui->doubleSpinBox_2->value()/100);
-    vw_.setWatermarkPosX(ui->dial_2->value());
-    vw_.setWatermarkPosY(ui->dial->value());
+    vw_.setWatermarkOpacity(ui->opacitySpinbox->value()/100);
+    vw_.setWatermarkScale( ui->sizeSpinbox->value()/100);
+    vw_.setWatermarkPosX(ui->watermark_x_dial->value());
+    vw_.setWatermarkPosY(ui->watermark_y_dial->value());
     thread_.setWriter(&vw_);
     thread_.start();
 }
@@ -237,8 +234,7 @@ void MainWindow::on_up_button_clicked()
     int do_not_move = true;
     for(int row = 0; row < ui->frameList->count(); row++)
     {
-             QListWidgetItem *item = ui->frameList->item(row);
-             if(item->isSelected()){
+             if(ui->frameList->item(row)->isSelected()){
                 if(do_not_move)
                     continue;
                 //move up once
@@ -288,8 +284,6 @@ void MainWindow::loadWatermark(const QString& watermark)
     currentFrame_.setWatermark(QPixmap(watermark));
 }
 
-
-
 void MainWindow::on_load_watermark_clicked()
 {
     loadWatermark();
@@ -304,7 +298,7 @@ void MainWindow::updateSlider_(){
        }
 }
 
-void MainWindow::on_doubleSpinBox_2_valueChanged(double v)
+void MainWindow::on_sizeSpinbox_valueChanged(double v)
 {
     currentFrame_.changeSize(v/100);
     //TODO: THIS is BAD, do it somehow smarter
@@ -312,7 +306,7 @@ void MainWindow::on_doubleSpinBox_2_valueChanged(double v)
     currentFrame_.setVisible(true);
 }
 
-void MainWindow::on_doubleSpinBox_valueChanged(double v)
+void MainWindow::on_opacitySpinbox_valueChanged(double v)
 {
     currentFrame_.changeOpacity(v/100);
     //TODO: THIS is BAD, do it somehow smarter
@@ -320,40 +314,39 @@ void MainWindow::on_doubleSpinBox_valueChanged(double v)
     currentFrame_.setVisible(true);
 }
 
-void MainWindow::on_dial_2_valueChanged(int value)
+void MainWindow::on_watermark_x_dial_valueChanged(int value)
 {
     currentFrame_.changePosX(value/100.);
     QString tooltip = "watermark position on x-axis: ";
     tooltip += QString::number(value)+"%";
-    ui->dial_2->setToolTip(tooltip);
+    ui->watermark_x_dial->setToolTip(tooltip);
 }
 
-void MainWindow::on_dial_valueChanged(int value)
+void MainWindow::on_watermark_y_dial_valueChanged(int value)
 {
     currentFrame_.changePosY(value/100.);
     QString tooltip = "watermark position on y-axis: ";
     tooltip += QString::number(value)+"%";
-    ui->dial->setToolTip(tooltip);
+    ui->watermark_y_dial->setToolTip(tooltip);
 }
 
 void MainWindow::scaleUpWatermark(int steps){
     currentFrame_.scaleSize(steps);
-    ui->doubleSpinBox_2->setValue(currentFrame_.getSize()*100);
+    ui->sizeSpinbox->setValue(currentFrame_.getSize()*100);
 }
 
 void MainWindow::moveWatermark(float x, float y){
     currentFrame_.changePos(x, y);
-    ui->dial_2->setValue(100* currentFrame_.getPosX());
-    ui->dial->setValue(100* currentFrame_.getPosY());
+    ui->watermark_x_dial->setValue(100* currentFrame_.getPosX());
+    ui->watermark_y_dial->setValue(100* currentFrame_.getPosY());
 }
-
 
 void MainWindow::on_actionLoad_Watermark_triggered()
 {
     loadWatermark();
 }
 
-void MainWindow::on_buttonAddImages_clicked()
+void MainWindow::on_addImages_button_clicked()
 {
     loadImages();
 }
@@ -407,8 +400,6 @@ void MainWindow::on_actionHelp_triggered()
                            "</ol>");
 }
 
-
-
 void MainWindow::dragEnterEvent(QDragEnterEvent *e)
 {
     if (e->mimeData()->hasUrls()) {
@@ -430,4 +421,40 @@ void MainWindow::dropEvent(QDropEvent *e)
         }
     }
     loadImages(list);
+}
+
+void MainWindow::on_top_button_clicked()
+{
+    int count = ui->frameList->count();
+    int pos = count-1;
+
+    while(count-->0)
+    {
+        if(ui->frameList->item(pos)->isSelected()){
+            QListWidgetItem * currentItem = ui->frameList->takeItem(pos);
+            ui->frameList->insertItem(0, currentItem);
+            ui->frameList->item(0)->setSelected(true);
+        }else{
+            pos-=1;
+        }
+    }
+    ui->frameList->setFocus();
+}
+
+void MainWindow::on_bottom_button_clicked()
+{
+    int count = ui->frameList->count()-1;;
+    int pos = 0;
+
+    while(count-->0)
+    {
+        if(ui->frameList->item(pos)->isSelected()){
+            QListWidgetItem * currentItem = ui->frameList->takeItem(pos);
+            ui->frameList->insertItem(ui->frameList->count(), currentItem);
+            ui->frameList->item(ui->frameList->count()-1)->setSelected(true);
+        }else{
+            pos+=1;
+        }
+    }
+    ui->frameList->setFocus();
 }

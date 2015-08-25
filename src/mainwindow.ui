@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>681</width>
-    <height>468</height>
+    <width>751</width>
+    <height>509</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -63,10 +63,7 @@
             </sizepolicy>
            </property>
            <property name="styleSheet">
-            <string notr="true">background-image: url(:/icons/add.png);
-background-position: center center;
-background-repeat: none;
-background-color: rgb(255, 255, 255);</string>
+            <string notr="true"/>
            </property>
            <property name="lineWidth">
             <number>0</number>
@@ -75,7 +72,7 @@ background-color: rgb(255, 255, 255);</string>
             <bool>true</bool>
            </property>
            <property name="dragDropMode">
-            <enum>QAbstractItemView::DragDrop</enum>
+            <enum>QAbstractItemView::InternalMove</enum>
            </property>
            <property name="defaultDropAction">
             <enum>Qt::IgnoreAction</enum>
@@ -113,7 +110,7 @@ background-color: rgb(255, 255, 255);</string>
              <number>0</number>
             </property>
             <item>
-             <widget class="QPushButton" name="buttonAddImages">
+             <widget class="QPushButton" name="addImages_button">
               <property name="maximumSize">
                <size>
                 <width>30</width>
@@ -133,7 +130,7 @@ background-color: rgb(255, 255, 255);</string>
              </widget>
             </item>
             <item>
-             <spacer name="verticalSpacer">
+             <spacer name="spacer1">
               <property name="orientation">
                <enum>Qt::Vertical</enum>
               </property>
@@ -146,7 +143,7 @@ background-color: rgb(255, 255, 255);</string>
              </spacer>
             </item>
             <item>
-             <widget class="QPushButton" name="pushButton_3">
+             <widget class="QPushButton" name="top_button">
               <property name="maximumSize">
                <size>
                 <width>30</width>
@@ -232,7 +229,7 @@ background-color: rgb(255, 255, 255);</string>
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="pushButton_6">
+             <widget class="QPushButton" name="bottom_button">
               <property name="maximumSize">
                <size>
                 <width>30</width>
@@ -252,7 +249,7 @@ background-color: rgb(255, 255, 255);</string>
              </widget>
             </item>
             <item>
-             <spacer name="verticalSpacer_3">
+             <spacer name="spacer3">
               <property name="orientation">
                <enum>Qt::Vertical</enum>
               </property>
@@ -288,7 +285,7 @@ background-color: rgb(255, 255, 255);</string>
              </widget>
             </item>
             <item>
-             <spacer name="verticalSpacer_2">
+             <spacer name="spacer2">
               <property name="orientation">
                <enum>Qt::Vertical</enum>
               </property>
@@ -325,7 +322,7 @@ background-color: rgb(255, 255, 255);</string>
           <number>5</number>
          </property>
          <item row="1" column="5">
-          <widget class="QPushButton" name="pushButton">
+          <widget class="QPushButton" name="convertVideo_button">
            <property name="maximumSize">
             <size>
              <width>30</width>
@@ -354,7 +351,7 @@ background-color: rgb(255, 255, 255);</string>
           </widget>
          </item>
          <item row="1" column="1">
-          <widget class="QToolButton" name="toolButton">
+          <widget class="QToolButton" name="destination_button">
            <property name="toolTip">
             <string>select a path for the target videofile</string>
            </property>
@@ -473,8 +470,7 @@ background-color: rgb(255, 255, 255);</string>
          <item>
           <widget class="GraphicsViewScaling" name="graphicsView">
            <property name="styleSheet">
-            <string notr="true">background-image: url(:/icons/add.png);
-background-position: center center;
+            <string notr="true">background-position: center center;
 background-repeat: none;
 background-color: rgb(255, 255, 255);</string>
            </property>
@@ -519,7 +515,7 @@ background-color: rgb(255, 255, 255);</string>
              </widget>
             </item>
             <item>
-             <widget class="QDoubleSpinBox" name="doubleSpinBox_2">
+             <widget class="QDoubleSpinBox" name="sizeSpinbox">
               <property name="toolTip">
                <string>size of the watermark in relation to the framesize</string>
               </property>
@@ -544,7 +540,7 @@ background-color: rgb(255, 255, 255);</string>
              </widget>
             </item>
             <item>
-             <spacer name="horizontalSpacer_3">
+             <spacer name="horizontalSpacer3">
               <property name="orientation">
                <enum>Qt::Horizontal</enum>
               </property>
@@ -564,7 +560,7 @@ background-color: rgb(255, 255, 255);</string>
              </widget>
             </item>
             <item>
-             <widget class="QDoubleSpinBox" name="doubleSpinBox">
+             <widget class="QDoubleSpinBox" name="opacitySpinbox">
               <property name="toolTip">
                <string>opacity of the watermark</string>
               </property>
@@ -586,7 +582,7 @@ background-color: rgb(255, 255, 255);</string>
              </widget>
             </item>
             <item>
-             <spacer name="horizontalSpacer_2">
+             <spacer name="horizontalSpacer2">
               <property name="orientation">
                <enum>Qt::Horizontal</enum>
               </property>
@@ -599,7 +595,14 @@ background-color: rgb(255, 255, 255);</string>
              </spacer>
             </item>
             <item>
-             <widget class="QDial" name="dial_2">
+             <widget class="QLabel" name="labelWatermark">
+              <property name="text">
+               <string>Watermark: </string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QDial" name="watermark_x_dial">
               <property name="toolTip">
                <string>watermark position on x-axis: 90%</string>
               </property>
@@ -618,7 +621,7 @@ background-color: rgb(255, 255, 255);</string>
              </widget>
             </item>
             <item>
-             <widget class="QDial" name="dial">
+             <widget class="QDial" name="watermark_y_dial">
               <property name="toolTip">
                <string>watermark position on y-axis: 90%</string>
               </property>
@@ -632,19 +635,6 @@ background-color: rgb(255, 255, 255);</string>
                <bool>false</bool>
               </property>
              </widget>
-            </item>
-            <item>
-             <spacer name="horizontalSpacer">
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>40</width>
-                <height>20</height>
-               </size>
-              </property>
-             </spacer>
             </item>
             <item>
              <widget class="QPushButton" name="load_watermark">
@@ -698,7 +688,7 @@ background-color: rgb(255, 255, 255);</string>
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>681</width>
+     <width>751</width>
      <height>25</height>
     </rect>
    </property>
