@@ -91,8 +91,8 @@ protected:
 class ImageWriter: public QThread
 {
 public:
-    explicit ImageWriter(const QImage* w,const QString& d, QStringList &i,uint id, uint n, float s, float x, float y, float o, VideoWriter* v):
-                watermark_(w), temp_dir_(d), images_(i), threadID_(id), numThreads_(n),scaleWatermark_(s), posx_(x), posy_(y), opacityWatermark_(o),vw_(v){}
+    explicit ImageWriter(const QImage* w,const QString& d, QStringList &i,uint id, uint n, float s, float x, float y, float o, QPair<int,int> r,VideoWriter* v):
+                watermark_(w), temp_dir_(d), images_(i), threadID_(id), numThreads_(n),scaleWatermark_(s), posx_(x), posy_(y), opacityWatermark_(o),resolution_(r),vw_(v){}
 
     void run();
 
@@ -106,6 +106,7 @@ private:
     float scaleWatermark_;
     float posx_; float posy_;
     float opacityWatermark_;
+    QPair<int,int> resolution_;
     VideoWriter* vw_;
 };
 #endif // VIDEOWRITER_H
