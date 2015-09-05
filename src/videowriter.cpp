@@ -1,3 +1,4 @@
+
 /**  frameboy is a simple tool to convert a sequence of images to a video.
 *    Copyright (C) 2015  kenny@wook.de
 *
@@ -26,6 +27,7 @@
 #include <QPainter>
 #include <QDebug>
 #include <QElapsedTimer>
+#include <QHash>
 
 
 //open cv
@@ -176,6 +178,32 @@ bool VideoWriter::copyImages_(){
 
     if(use_watermark_)
         watermark = QImage(watermark_.c_str());
+
+    //store the frequency of framesizes
+    QHash<QPair<int,int>, int> frame_sizes;
+    for(int i=0; i<images_.size(); ++i){
+	QImage img;
+	bool loaded = img.load(images_.at(i));
+        if( not loaded)
+	    continue;
+	//count the frameresolution
+	QPair<int,int> resolution(img.width(),img.height());
+	if(frame_sizes.find(resolution)==frame_sizes.end())
+		frame_sizes[resolution]=1;
+	else
+		frame_sizes[resolution]+=1;
+		
+    }
+    int max_count = 0; 
+    QHash<QPair<int,int>, int>::iterator iter;
+    for (iter = frame_sizes.begin(); iter != frame_sizes.end(); ++iter){
+	if (iter.value()> max_count){
+		max_count = iter.value();	
+		resolution_ = iter.key(); 	
+	}
+    }
+    qDebug()<<"using resolution: "<<resolution_.first<<"x"<<resolution_.second;
+     
 
     //create threads and start them
     std::vector<ImageWriter*> threads;

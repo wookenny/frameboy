@@ -23,6 +23,7 @@
 #include <QString>
 #include <QThread>
 #include <QDebug>
+#include <QPair>
 
 class VideoWriter : public QObject{
 Q_OBJECT
@@ -37,6 +38,7 @@ Q_OBJECT
         float scale_watermark_ = .1;
         QStringList images_;
         QString temp_dir_;
+	QPair<int,int> resolution_;
 
         bool createTempDir_();
         bool writeVideoFromImages_();
