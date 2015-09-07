@@ -79,7 +79,7 @@ bool VideoWriter::writeVideoFromImages_(){
     int CODEC = CV_FOURCC('M','P','4','2');
     // Load input video
     std::string images = (temp_dir_ + QDir::separator()).toUtf8().constData();
-    images += "%6d.jpg"; 
+    images += "%6d.jpg";
     cv::VideoCapture input_cap(images);
     if (!input_cap.isOpened())
     {
@@ -88,11 +88,11 @@ bool VideoWriter::writeVideoFromImages_(){
     }
 
     // Setup output video
-    cv::VideoWriter output_cap(filename_.c_str(),
-                                CODEC,
-                                fps_,
-                                cv::Size(input_cap.get(CV_CAP_PROP_FRAME_WIDTH),
-                                input_cap.get(CV_CAP_PROP_FRAME_HEIGHT)));
+    cv::VideoWriter output_cap(filename_.toUtf8().constData(),
+    CODEC,
+    fps_,
+    cv::Size(input_cap.get(CV_CAP_PROP_FRAME_WIDTH),
+    input_cap.get(CV_CAP_PROP_FRAME_HEIGHT)));
 
     if (!output_cap.isOpened())
     {
@@ -105,7 +105,7 @@ bool VideoWriter::writeVideoFromImages_(){
     while (true)
     {
         if (!input_cap.read(frame))
-            break;
+        break;
         i+=1;
         QString msg = QString("encoding video ")+ QString::number( 100.*i / images_.size() )+"%";
         emit signalGUI(msg);
@@ -150,7 +150,7 @@ void VideoWriter::writeVideo(){
     success = copyImages_();
 
     if(not success)
-        return;
+    return;
 
     QString msg = "copied images";
     emit signalGUI(msg);
@@ -160,13 +160,13 @@ void VideoWriter::writeVideo(){
     removeTempDir_();
 
     if (not success)
-        return;
+    return;
 
     float ms = timer.elapsed()/1000.;
     msg = "video written in ";
     msg += QString::number(ms);
     msg += " seconds: ";
-    msg += QString::fromStdString(filename_);
+    msg += filename_;
     emit signalGUI(msg);
 }
 
@@ -176,47 +176,45 @@ bool VideoWriter::copyImages_(){
     bool use_watermark_ = (watermark_!="");
     QImage watermark;
 
-    if(use_watermark_)
-        watermark = QImage(watermark_.c_str());
+    if(use_watermark_){
+        watermark = QImage(watermark_);
+        watermark_file_ = &watermark;
+    }
 
     //store the frequency of framesizes
     QHash<QPair<int,int>, int> frame_sizes;
     for(int i=0; i<images_.size(); ++i){
-	QImage img;
-	bool loaded = img.load(images_.at(i));
+        QImage img;
+        bool loaded = img.load(images_.at(i));
         if( not loaded)
-	    continue;
-	//count the frameresolution
-	QPair<int,int> resolution(img.width(),img.height());
-	if(frame_sizes.find(resolution)==frame_sizes.end())
-		frame_sizes[resolution]=1;
-	else
-		frame_sizes[resolution]+=1;
-		
+        continue;
+        //count the frameresolution
+        QPair<int,int> resolution(img.width(),img.height());
+        if(frame_sizes.find(resolution)==frame_sizes.end())
+        frame_sizes[resolution]=1;
+        else
+        frame_sizes[resolution]+=1;
+
     }
-    int max_count = 0; 
+    int max_count = 0;
     QHash<QPair<int,int>, int>::iterator iter;
     for (iter = frame_sizes.begin(); iter != frame_sizes.end(); ++iter){
-	if (iter.value()> max_count){
-		max_count = iter.value();	
-		resolution_ = iter.key(); 	
-	}
+        if (iter.value()> max_count){
+            max_count = iter.value();
+            resolution_ = iter.key();
+        }
     }
-    qDebug()<<"using resolution: "<<resolution_.first<<"x"<<resolution_.second;
-     
 
     //create threads and start them
     std::vector<ImageWriter*> threads;
     for(uint i=0; i<nthreads_;++i)
-        threads.push_back(new ImageWriter( use_watermark_ ? &watermark : nullptr,
-                                    temp_dir_, images_, i, nthreads_, scale_watermark_, posX_, posY_, opacity_,resolution_,this) );
-
+    threads.push_back(new ImageWriter( i, this) );
     for(uint i=0; i<threads.size();++i)
-        threads[i]->start();
+    threads[i]->start();
     for(uint i=0; i<threads.size();++i)
-        threads[i]->wait();
+    threads[i]->wait();
     for(uint i=0; i<threads.size();++i)
-        delete threads[i];
+    delete threads[i];
 
     return true;
 }
@@ -224,13 +222,12 @@ bool VideoWriter::copyImages_(){
 
 void ImageWriter::run()
 {
-
-    for (int i = threadID_; i < images_.size(); i+=numThreads_){
-        QString file = images_.at(i);
+    for (int i = threadID_; i < vw_->images_.size(); i+=vw_->nthreads_){
+        QString file = vw_->images_.at(i);
         QString filename = QString::number(i);
         filename = filename.rightJustified(6, '0');
         filename += ".jpg";
-        QString new_file = temp_dir_ + QDir::separator() + filename;
+        QString new_file = vw_->temp_dir_ + QDir::separator() + filename;
 
         if(QFile(file).size()==0){
             QString msg = "File "+file+" seems to be invalid!";
@@ -239,11 +236,12 @@ void ImageWriter::run()
         }
 
         bool image_copied = false;
-        if(watermark_==nullptr and file.endsWith(".jpg",Qt::CaseInsensitive)){            
-	    //TODO is imagesize matching?
-	    QImage img(file);
-            if(not file.isNull() and resolution_.first == img.width() and resolution_.second == img.height() )
-            	image_copied = QFile::copy(file, new_file);
+        if(vw_->watermark_file_== nullptr and file.endsWith(".jpg",Qt::CaseInsensitive)){
+            //TODO is imagesize matching?
+            QImage img(file);
+            if (not file.isNull() and vw_->resolution_.first == img.width()
+                                  and vw_->resolution_.second == img.height() )
+                                  image_copied = QFile::copy(file, new_file);
         }
         if(not image_copied){
             QImage image;
@@ -254,17 +252,18 @@ void ImageWriter::run()
                 //todo: how do handle error?
             }
 
-	    //scale image to desired size
-	    image = image.scaled(resolution_.first, resolution_.second, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
+            //scale image to desired size
+            image = image.scaled(vw_->resolution_.first, vw_->resolution_.second,
+                                Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
 
-            if( watermark_ != nullptr){
+            if( vw_->watermark_file_ != nullptr){
                 QPainter painter(&image);
-                QImage wm = *watermark_;
-                wm = wm.scaled(image.size()*scaleWatermark_, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+                QImage wm = *(vw_->watermark_file_);
+                wm = wm.scaled(image.size()*vw_->scale_watermark_, Qt::KeepAspectRatio, Qt::SmoothTransformation);
 
-                QPointF pos( posx_*.01*(image.width()-wm.width()),
-                             posy_*.01*(image.height()-wm.height()));
-                painter.setOpacity(this->opacityWatermark_);
+                QPointF pos( vw_->posX_*.01*(image.width()-wm.width()),
+                             vw_->posY_*.01*(image.height()-wm.height()));
+                painter.setOpacity(vw_->opacity_);
                 painter.drawImage(pos, wm);
             }
             if(!image.save(new_file,"jpg",100)){
@@ -274,9 +273,8 @@ void ImageWriter::run()
             }
         }
         if(threadID_==0){
-            QString msg = "modifying frames: "+ QString::number(100.*i/images_.size())+"%";
+            QString msg = "modifying frames: "+ QString::number(100.*i/vw_->images_.size())+"%";
             vw_->sendSignalGUI(msg);
         }
     }
 }
-

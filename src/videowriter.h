@@ -25,20 +25,21 @@
 #include <QDebug>
 #include <QPair>
 
-class VideoWriter : public QObject{
+class VideoWriter : public  QThread{
 Q_OBJECT
     private:
-        std::string filename_;
+        QString filename_;
         double fps_ = 25.;
-        std::string sep_ = ""+ QDir::separator().unicode();
-        std::string watermark_;
+        QString sep_ = QDir::separator();
+        QString watermark_;
+        QImage* watermark_file_ = nullptr;
         float opacity_ = .8;
         float posX_ = .9;
         float posY_ = .9;
         float scale_watermark_ = .1;
         QStringList images_;
         QString temp_dir_;
-	QPair<int,int> resolution_;
+	    QPair<int,int> resolution_;
 
         bool createTempDir_();
         bool writeVideoFromImages_();
@@ -46,6 +47,8 @@ Q_OBJECT
         bool removeDir_(const QString &) const;
         bool removeTempDir_() const{ return removeDir_(temp_dir_) ;}
         unsigned int nthreads_ = QThread::idealThreadCount();
+    protected:
+        void run(){ writeVideo(); }
 
     signals:
         void signalGUI(const QString &msg);
@@ -53,9 +56,9 @@ Q_OBJECT
 
     public:
         void sendSignalGUI(const QString &msg);
-        void setOutputFilename(std::string s) { filename_ = s; }
+        void setOutputFilename(QString s) { filename_ = s; }
         void setFramerate(double fps) { fps_ = fps;}
-        void setWatermark(std::string w)  { watermark_ = w;}
+        void setWatermark(QString w)  { watermark_ = w;}
         void setWatermarkOpacity(float o) { opacity_   = o;}
         void setWatermarkPosX(float x)  { posX_ = x;}
         void setWatermarkPosY(float y)  { posY_ = y;}
@@ -64,50 +67,21 @@ Q_OBJECT
 
         void writeVideo();
 
-        std::string getWatermark() const{return watermark_;}
+        QString getWatermark() const{return watermark_;}
+
+        friend class ImageWriter;
 };
-
-
-class VideoWriterThread : public QThread
-{
-Q_OBJECT
-public:
-
-    void setWriter(VideoWriter *w){vw_ = w;}
-
-//signals:
-//    void signalGUI(const QString &msg);
-
-private:
-    VideoWriter *vw_;
-protected:
-    void run()
-        {
-            vw_->writeVideo();
-        }
-};
-
 
 
 class ImageWriter: public QThread
 {
 public:
-    explicit ImageWriter(const QImage* w,const QString& d, QStringList &i,uint id, uint n, float s, float x, float y, float o, QPair<int,int> r,VideoWriter* v):
-                watermark_(w), temp_dir_(d), images_(i), threadID_(id), numThreads_(n),scaleWatermark_(s), posx_(x), posy_(y), opacityWatermark_(o),resolution_(r),vw_(v){}
-
+    explicit ImageWriter(uint id, VideoWriter *v): threadID_(id), vw_(v){}
     void run();
 
-
 private:
-    const QImage *watermark_;
-    const QString& temp_dir_;
-    QStringList &images_;
     uint threadID_;
-    uint numThreads_;
-    float scaleWatermark_;
-    float posx_; float posy_;
-    float opacityWatermark_;
-    QPair<int,int> resolution_;
-    VideoWriter* vw_;
+    VideoWriter *vw_;
 };
+
 #endif // VIDEOWRITER_H

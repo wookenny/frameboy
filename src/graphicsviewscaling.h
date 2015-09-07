@@ -31,6 +31,8 @@ public:
 
     void setMainwindow(MainWindow *m){main = m;}
 
+    void setShift(bool b){shift_key_ = b;}
+
 protected:
     void resizeEvent(QResizeEvent *event);
     void mousePressEvent ( QMouseEvent * even);
@@ -40,16 +42,19 @@ protected:
     void dragLeaveEvent(QDragLeaveEvent *e);
     void dropEvent(QDropEvent *e);
     void dragMoveEvent(QDragMoveEvent * event);
-    //void dragDropEvent
+    void keyPressEvent(QKeyEvent * event );
+    void keyReleaseEvent(QKeyEvent *event);
 
 signals:
     void signalScaleUp(int steps);
+    void signalOpacityChange(int steps);
     void signalMoveTo(float x,float y);
 private slots:
 
 
 private:
     MainWindow* main = nullptr;
+    bool shift_key_ = false;
 };
 
 #endif // GRAPHICSVIEWSCALING_H

@@ -50,14 +50,15 @@ MainWindow::MainWindow(QWidget *parent) :
     QObject::connect(&vw_,SIGNAL(signalError(const QString&)),this,SLOT(show_alert(const QString&)));
     QObject::connect(ui->graphicsView,SIGNAL(signalScaleUp(int)),
                       this,SLOT(scaleUpWatermark(int)));
-
+    QObject::connect(ui->graphicsView,SIGNAL(signalOpacityChange(int)),
+                      this,SLOT(changeWatermarkOpacity(int)));
     QObject::connect(ui->graphicsView,SIGNAL(signalMoveTo(float,float)),
                       this,SLOT(moveWatermark(float,float)));
 }
 
 MainWindow::~MainWindow()
 {
-    thread_.exit();
+    vw_.exit();
     delete ui;
 
 }
@@ -134,7 +135,7 @@ void MainWindow::on_destination_button_clicked()
 
 void MainWindow::on_convertVideo_button_clicked()
 {
-    vw_.setOutputFilename(filename_.toStdString());
+    vw_.setOutputFilename(filename_);
     vw_.setFramerate(ui->framerateSpinBox->value());
     QStringList list;
     for(int i = 0; i < ui->frameList->count(); ++i)
@@ -145,8 +146,8 @@ void MainWindow::on_convertVideo_button_clicked()
     vw_.setWatermarkScale( ui->sizeSpinbox->value()/100);
     vw_.setWatermarkPosX(ui->watermark_x_dial->value());
     vw_.setWatermarkPosY(ui->watermark_y_dial->value());
-    thread_.setWriter(&vw_);
-    thread_.start();
+    setStatusBar("starting video encoding");
+    vw_.start();
 }
 
 void MainWindow::setStatusBar(const QString &string){
@@ -280,13 +281,23 @@ void MainWindow::loadWatermark()
 
 void MainWindow::loadWatermark(const QString& watermark)
 {
-    vw_.setWatermark(watermark.toStdString());
+    vw_.setWatermark(watermark);
     currentFrame_.setWatermark(QPixmap(watermark));
+    ui->load_watermark->setIcon(QIcon(":/icons/edit-delete.png"));
 }
 
 void MainWindow::on_load_watermark_clicked()
 {
-    loadWatermark();
+    if(vw_.getWatermark()=="")
+        loadWatermark();
+    else
+        remove_watermark();
+}
+
+void  MainWindow::remove_watermark(){
+    vw_.setWatermark("");
+    currentFrame_.setWatermark(QPixmap(""));
+    ui->load_watermark->setIcon(QIcon(":/icons/color-fill.png"));
 }
 
 void MainWindow::updateSlider_(){
@@ -333,6 +344,11 @@ void MainWindow::on_watermark_y_dial_valueChanged(int value)
 void MainWindow::scaleUpWatermark(int steps){
     currentFrame_.scaleSize(steps);
     ui->sizeSpinbox->setValue(currentFrame_.getSize()*100);
+}
+
+void MainWindow::changeWatermarkOpacity(int steps){
+    currentFrame_.modifyOpacity(steps);
+    ui->opacitySpinbox->setValue(currentFrame_.getOpacity()*100);
 }
 
 void MainWindow::moveWatermark(float x, float y){
@@ -457,4 +473,16 @@ void MainWindow::on_bottom_button_clicked()
         }
     }
     ui->frameList->setFocus();
+}
+
+void MainWindow::keyPressEvent( QKeyEvent * event ){
+    if(event->key() == Qt::Key_Shift)
+        ui->graphicsView->setShift(true);
+    event->accept();
+}
+
+void MainWindow::keyReleaseEvent(QKeyEvent *event){
+    if(event->key() == Qt::Key_Shift)
+        ui->graphicsView->setShift(true);
+    event->accept();
 }

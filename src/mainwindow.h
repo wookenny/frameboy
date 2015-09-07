@@ -44,13 +44,17 @@ public:
     void loadImages(const QStringList& files);
     void loadWatermark();
     void loadWatermark(const QString& watermark);
+    void remove_watermark();
+
+protected:
+    void keyPressEvent(QKeyEvent * event );
+    void keyReleaseEvent(QKeyEvent *event);
 
 private:
     Ui::MainWindow *ui;
-    QGraphicsScene      scene_;
+    QGraphicsScene  scene_;
     GraphicsPixmapItemWatermark currentFrame_;
     QString filename_;
-    VideoWriterThread thread_;
     VideoWriter vw_;
 
     void updateSlider_();
@@ -77,6 +81,7 @@ private slots:
     void on_watermark_y_dial_valueChanged(int value);
 
     void scaleUpWatermark(int steps);
+    void changeWatermarkOpacity(int steps);
     void moveWatermark(float x, float y);
     void on_actionLoad_Watermark_triggered();
     void on_addImages_button_clicked();

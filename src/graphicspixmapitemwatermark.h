@@ -20,6 +20,7 @@
 
 #include <QGraphicsPixmapItem>
 #include <QPainter>
+#include <QDebug>
 
 class GraphicsPixmapItemWatermark : public QGraphicsPixmapItem
 {
@@ -35,15 +36,27 @@ public:
 
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
 
-    void setWatermark(QPixmap w){watermark_ = w; this->hide(); this->show();}
+    void setWatermark(QPixmap w){watermark_ = w;
+                                 //TODO: BAD!!!!
+                                 this->hide(); this->show();}
     void changeOpacity(float value);
     void changeSize(float value){ size_ = value; }
     void scaleSize(int steps){  if(watermark_.isNull()) return;
                                 size_ += steps*.01;
                                 size_ = std::min(1.f,size_);
+                                size_ = std::max(0.f,size_);
                                 this->hide(); this->show();
+                                //TODO: BAD!!!!
+                              }
+    void modifyOpacity(int steps){  if(watermark_.isNull()) return;
+                                opacity_ += steps*.01;
+                                opacity_ = std::min(1.f,opacity_);
+                                opacity_ = std::max(0.f,opacity_);
+                                this->hide(); this->show();
+                                //TODO: BAD!!!!
                               }
     float getSize(){return size_;}
+    float getOpacity(){return opacity_;}
     float getPosX(){return posx_;}
     float getPosY(){return posy_;}
 
