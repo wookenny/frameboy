@@ -21,7 +21,7 @@
 #include <QTransform>
 #include <QResizeEvent>
 #include <QUrl>
-
+#include <QMimeData>
 
 GraphicsViewScaling::GraphicsViewScaling(QWidget *parent) :  QGraphicsView(parent)
 {

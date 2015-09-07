@@ -1,3 +1,4 @@
+
 /**  frameboy is a simple tool to convert a sequence of images to a video.
 *    Copyright (C) 2015  kenny@wook.de
 *
@@ -26,6 +27,7 @@
 #include <QPainter>
 #include <QDebug>
 #include <QElapsedTimer>
+#include <QHash>
 
 
 //open cv
@@ -77,7 +79,7 @@ bool VideoWriter::writeVideoFromImages_(){
     int CODEC = CV_FOURCC('M','P','4','2');
     // Load input video
     std::string images = (temp_dir_ + QDir::separator()).toUtf8().constData();
-    images += "%4d.png";
+    images += "%6d.jpg"; 
     cv::VideoCapture input_cap(images);
     if (!input_cap.isOpened())
     {
@@ -177,11 +179,37 @@ bool VideoWriter::copyImages_(){
     if(use_watermark_)
         watermark = QImage(watermark_.c_str());
 
+    //store the frequency of framesizes
+    QHash<QPair<int,int>, int> frame_sizes;
+    for(int i=0; i<images_.size(); ++i){
+	QImage img;
+	bool loaded = img.load(images_.at(i));
+        if( not loaded)
+	    continue;
+	//count the frameresolution
+	QPair<int,int> resolution(img.width(),img.height());
+	if(frame_sizes.find(resolution)==frame_sizes.end())
+		frame_sizes[resolution]=1;
+	else
+		frame_sizes[resolution]+=1;
+		
+    }
+    int max_count = 0; 
+    QHash<QPair<int,int>, int>::iterator iter;
+    for (iter = frame_sizes.begin(); iter != frame_sizes.end(); ++iter){
+	if (iter.value()> max_count){
+		max_count = iter.value();	
+		resolution_ = iter.key(); 	
+	}
+    }
+    qDebug()<<"using resolution: "<<resolution_.first<<"x"<<resolution_.second;
+     
+
     //create threads and start them
     std::vector<ImageWriter*> threads;
     for(uint i=0; i<nthreads_;++i)
         threads.push_back(new ImageWriter( use_watermark_ ? &watermark : nullptr,
-                                    temp_dir_, images_, i, nthreads_, scale_watermark_, posX_, posY_, opacity_,this) );
+                                    temp_dir_, images_, i, nthreads_, scale_watermark_, posX_, posY_, opacity_,resolution_,this) );
 
     for(uint i=0; i<threads.size();++i)
         threads[i]->start();
@@ -200,8 +228,8 @@ void ImageWriter::run()
     for (int i = threadID_; i < images_.size(); i+=numThreads_){
         QString file = images_.at(i);
         QString filename = QString::number(i);
-        filename = filename.rightJustified(4, '0');
-        filename += ".png";
+        filename = filename.rightJustified(6, '0');
+        filename += ".jpg";
         QString new_file = temp_dir_ + QDir::separator() + filename;
 
         if(QFile(file).size()==0){
@@ -211,8 +239,11 @@ void ImageWriter::run()
         }
 
         bool image_copied = false;
-        if(watermark_==nullptr and file.endsWith(".png",Qt::CaseInsensitive)){
-            image_copied = QFile::copy(file, new_file);
+        if(watermark_==nullptr and file.endsWith(".jpg",Qt::CaseInsensitive)){            
+	    //TODO is imagesize matching?
+	    QImage img(file);
+            if(not file.isNull() and resolution_.first == img.width() and resolution_.second == img.height() )
+            	image_copied = QFile::copy(file, new_file);
         }
         if(not image_copied){
             QImage image;
@@ -222,6 +253,9 @@ void ImageWriter::run()
                 qDebug()<<msg;
                 //todo: how do handle error?
             }
+
+	    //scale image to desired size
+	    image = image.scaled(resolution_.first, resolution_.second, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
 
             if( watermark_ != nullptr){
                 QPainter painter(&image);
@@ -233,7 +267,7 @@ void ImageWriter::run()
                 painter.setOpacity(this->opacityWatermark_);
                 painter.drawImage(pos, wm);
             }
-            if(!image.save(new_file)){
+            if(!image.save(new_file,"jpg",100)){
                 qDebug() << "saving modified image failed!\n";
                 qDebug() << file << " -> "<<new_file<<"\n";
                 //TODO: how to handle this?
