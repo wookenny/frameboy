@@ -57,7 +57,10 @@ void GraphicsViewScaling::wheelEvent(QWheelEvent *event){
     int numSteps = numDegrees / 15;
 
     event->accept();
-    emit signalScaleUp(numSteps);
+    if(not shift_key_)
+        emit signalScaleUp(numSteps);
+    else
+        emit signalOpacityChange(numSteps);
 }
 
 void GraphicsViewScaling::dragEnterEvent(QDragEnterEvent *e)
@@ -91,4 +94,16 @@ void GraphicsViewScaling::dragMoveEvent(QDragMoveEvent * e){
 
 void GraphicsViewScaling::dragLeaveEvent(QDragLeaveEvent *e){
         e->accept();
+}
+
+void GraphicsViewScaling::keyPressEvent( QKeyEvent * event ){
+    if(event->key() == Qt::Key_Shift)
+        shift_key_ = true;
+    event->accept();
+}
+
+void GraphicsViewScaling::keyReleaseEvent(QKeyEvent *event){
+    if(event->key() == Qt::Key_Shift)
+        shift_key_ = false;
+    event->accept();
 }

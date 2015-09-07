@@ -62,6 +62,7 @@ Q_OBJECT
 
         void writeVideo();
 
+        std::string getWatermark() const{return watermark_;}
 };
 
 
