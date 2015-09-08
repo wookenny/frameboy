@@ -211,7 +211,7 @@ void MainWindow::on_revert_button_clicked()
         while(not ui->frameList->item(bottom)->isSelected())
             --bottom;
         //swap pairs
-        QListWidgetItem * item = ui->frameList->takeItem(top);
+        QListWidgetItem *item = ui->frameList->takeItem(top);
         ui->frameList->insertItem(bottom-1, item);
         ui->frameList->item(bottom-1)->setSelected(true);
         item = ui->frameList->takeItem(bottom);
@@ -312,17 +312,13 @@ void MainWindow::updateSlider_(){
 void MainWindow::on_sizeSpinbox_valueChanged(double v)
 {
     currentFrame_.changeSize(v/100);
-    //TODO: THIS is BAD, do it somehow smarter
-    currentFrame_.setVisible(false);
-    currentFrame_.setVisible(true);
+    currentFrame_.update();
 }
 
 void MainWindow::on_opacitySpinbox_valueChanged(double v)
 {
     currentFrame_.changeOpacity(v/100);
-    //TODO: THIS is BAD, do it somehow smarter
-    currentFrame_.setVisible(false);
-    currentFrame_.setVisible(true);
+    currentFrame_.update();
 }
 
 void MainWindow::on_watermark_x_dial_valueChanged(int value)
@@ -375,7 +371,7 @@ void MainWindow::on_actionAbout_triggered()
                        "<font size=\"3\">"
                        "Version: "
                        GIT_CURRENT_SHA1
-                       " \t\t"
+                       "&nbsp;&nbsp;&nbsp;&nbsp;build: "
                        __DATE__
                        " "
                        __TIME__
