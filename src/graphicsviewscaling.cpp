@@ -25,15 +25,23 @@
 
 GraphicsViewScaling::GraphicsViewScaling(QWidget *parent) :  QGraphicsView(parent)
 {
-    this->setRenderHint(QPainter::Antialiasing,true);
+    this->setRenderHints(QPainter::Antialiasing | QPainter::SmoothPixmapTransform);
     this->setAcceptDrops(true);
 }
 
+void GraphicsViewScaling::setGraphicsSize(int w,int h){
+        sizeX_= w; sizeY_ = h;
+        updateItemSize();
+}
+
+void GraphicsViewScaling::updateItemSize(){
+    setSceneRect(0, 0, sizeX_, sizeY_);
+    fitInView(this->sceneRect(),Qt::KeepAspectRatio);
+}
 
 void GraphicsViewScaling::resizeEvent(QResizeEvent *event)
 {
-
-    fitInView(this->sceneRect(),Qt::KeepAspectRatio);
+    updateItemSize();
     QGraphicsView::resizeEvent(event);
     event->accept();
 }

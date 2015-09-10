@@ -157,7 +157,9 @@ void MainWindow::setStatusBar(const QString &string){
 void MainWindow::showFrame(QListWidgetItem *i)
 {
     currentFrame_.setPixmap( QPixmap(i->data((Qt::UserRole + 1)).toString() ));
-    ui->graphicsView->fitInView(QRectF(0, 0, currentFrame_.pixmap().width(),  currentFrame_.pixmap().height()), Qt::KeepAspectRatio);
+    ui->graphicsView->setGraphicsSize(currentFrame_.pixmap().width(),currentFrame_.pixmap().height());
+    ui->graphicsView->setSceneRect(0, 0, currentFrame_.pixmap().width(), currentFrame_.pixmap().height());
+    ui->graphicsView->fitInView(ui->graphicsView->sceneRect(),Qt::KeepAspectRatio);
 
 }
 

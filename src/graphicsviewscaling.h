@@ -32,6 +32,7 @@ public:
     void setMainwindow(MainWindow *m){main = m;}
 
     void setShift(bool b){shift_key_ = b;}
+    void setGraphicsSize(int w,int h);
 
 protected:
     void resizeEvent(QResizeEvent *event);
@@ -55,6 +56,11 @@ private slots:
 private:
     MainWindow* main = nullptr;
     bool shift_key_ = false;
+    int sizeX_ = 0;
+    int sizeY_ = 0;
+
+
+    void updateItemSize();
 };
 
 #endif // GRAPHICSVIEWSCALING_H
