@@ -80,8 +80,9 @@ void GraphicsViewScaling::dragEnterEvent(QDragEnterEvent *e)
 
 void GraphicsViewScaling::dropEvent(QDropEvent *e)
 {
-    foreach (const QUrl &url, e->mimeData()->urls()) {
-        const QString &fileName = url.toLocalFile();
+    //single file => watermark
+    if (e->mimeData()->urls().size() == 1){
+        const QString &fileName = e->mimeData()->urls().front().toLocalFile();
         if ( fileName.endsWith(".jpg",Qt::CaseInsensitive) or
              fileName.endsWith(".jpeg",Qt::CaseInsensitive) or
              fileName.endsWith(".png",Qt::CaseInsensitive) or
@@ -90,6 +91,19 @@ void GraphicsViewScaling::dropEvent(QDropEvent *e)
             this->main->loadWatermark(fileName);
             return;
         }
+    }else{ //multiple file => frames
+        QStringList list;
+        foreach (const QUrl &url, e->mimeData()->urls()) {
+            const QString &name = url.toLocalFile();
+
+            if( name.endsWith(".jpg",Qt::CaseInsensitive) or
+                name.endsWith(".jpeg",Qt::CaseInsensitive) or
+                name.endsWith(".png",Qt::CaseInsensitive) or
+                name.endsWith(".xpm",Qt::CaseInsensitive)){
+                list.append(name);
+            }
+        }
+        this->main->loadImages(list);
     }
 }
 

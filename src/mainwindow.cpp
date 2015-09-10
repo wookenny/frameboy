@@ -97,6 +97,7 @@ void MainWindow::loadImages(const QStringList& files){
         ui->frameList->setCurrentRow(0);
         showFrame(ui->frameList->item(0));
     }
+    setStatusBar("frame images added");
 }
 
 void MainWindow::on_actionLoad_Images_triggered()
@@ -286,6 +287,7 @@ void MainWindow::loadWatermark(const QString& watermark)
     vw_.setWatermark(watermark);
     currentFrame_.setWatermark(QPixmap(watermark));
     ui->load_watermark->setIcon(QIcon(":/icons/edit-delete.png"));
+    setStatusBar("watermark image loaded");
 }
 
 void MainWindow::on_load_watermark_clicked()
@@ -300,6 +302,7 @@ void  MainWindow::remove_watermark(){
     vw_.setWatermark("");
     currentFrame_.setWatermark(QPixmap(""));
     ui->load_watermark->setIcon(QIcon(":/icons/color-fill.png"));
+    setStatusBar("removed watermark image");
 }
 
 void MainWindow::updateSlider_(){
@@ -474,8 +477,13 @@ void MainWindow::on_bottom_button_clicked()
 }
 
 void MainWindow::keyPressEvent( QKeyEvent * event ){
-    if(event->key() == Qt::Key_Shift)
+    if(event->key() == Qt::Key_Shift){
         ui->graphicsView->setShift(true);
+    }else if(event->key() == Qt::Key_Left){//previous frame
+        on_frameSlider_valueChanged((ui->frameList->currentRow()-1)%(ui->frameList->count()));
+    }else if(event->key() == Qt::Key_Right) {//next frame
+        on_frameSlider_valueChanged((ui->frameList->currentRow()+1)% (ui->frameList->count()));
+    }
     event->accept();
 }
 
