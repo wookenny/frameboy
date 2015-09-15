@@ -172,7 +172,6 @@ void VideoWriter::writeVideo(){
 
 
 bool VideoWriter::copyImages_(){
-
     bool use_watermark_ = (watermark_!="");
     QImage watermark;
 
@@ -208,13 +207,22 @@ bool VideoWriter::copyImages_(){
     //create threads and start them
     std::vector<ImageWriter*> threads;
     for(uint i=0; i<nthreads_;++i)
-    threads.push_back(new ImageWriter( i, this) );
+        threads.push_back(new ImageWriter( i, this) );
     for(uint i=0; i<threads.size();++i)
-    threads[i]->start();
+        threads[i]->start();
     for(uint i=0; i<threads.size();++i)
-    threads[i]->wait();
+        threads[i]->wait();
+    //collect possible errors
+    for(uint i=0; i<threads.size();++i){
+        QString error = threads[i]->getErrorMsg();
+        if( error !=""){
+            signalError(error);
+            break;
+        }
+    }
+    //delete all threads
     for(uint i=0; i<threads.size();++i)
-    delete threads[i];
+        delete threads[i];
 
     return true;
 }
@@ -222,6 +230,7 @@ bool VideoWriter::copyImages_(){
 
 void ImageWriter::run()
 {
+    error_ = "";
     for (int i = threadID_; i < vw_->images_.size(); i+=vw_->nthreads_){
         QString file = vw_->images_.at(i);
         QString filename = QString::number(i);
@@ -230,14 +239,13 @@ void ImageWriter::run()
         QString new_file = vw_->temp_dir_ + QDir::separator() + filename;
 
         if(QFile(file).size()==0){
-            QString msg = "File "+file+" seems to be invalid!";
-            qDebug()<<msg;
-            //TODO: how to handle error?
+            error_ = "File "+file+" seems to be invalid!";
+            qDebug()<<error_;
+            return;
         }
 
         bool image_copied = false;
         if(vw_->watermark_file_== nullptr and file.endsWith(".jpg",Qt::CaseInsensitive)){
-            //TODO is imagesize matching?
             QImage img(file);
             if (not file.isNull() and vw_->resolution_.first == img.width()
                                   and vw_->resolution_.second == img.height() )
@@ -247,9 +255,9 @@ void ImageWriter::run()
             QImage image;
             bool loaded = image.load(file);
             if(not loaded){
-                QString msg = "File "+file+" could not be loaded!";
-                qDebug()<<msg;
-                //todo: how do handle error?
+                error_ = "File "+file+" could not be loaded!";
+                qDebug()<<error_;
+                return;
             }
 
             //scale image to desired size
@@ -267,9 +275,10 @@ void ImageWriter::run()
                 painter.drawImage(pos, wm);
             }
             if(!image.save(new_file,"jpg",100)){
+                error_ = "could not save modified image" + new_file;
                 qDebug() << "saving modified image failed!\n";
                 qDebug() << file << " -> "<<new_file<<"\n";
-                //TODO: how to handle this?
+                return;
             }
         }
         if(threadID_==0){

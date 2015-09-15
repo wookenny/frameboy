@@ -78,10 +78,12 @@ class ImageWriter: public QThread
 public:
     explicit ImageWriter(uint id, VideoWriter *v): threadID_(id), vw_(v){}
     void run();
+    QString getErrorMsg() const{return error_;}
 
 private:
     uint threadID_;
     VideoWriter *vw_;
+    QString error_;
 };
 
 #endif // VIDEOWRITER_H

@@ -460,7 +460,7 @@ void MainWindow::on_top_button_clicked()
 
 void MainWindow::on_bottom_button_clicked()
 {
-    int count = ui->frameList->count()-1;;
+    int count = ui->frameList->count()-1;
     int pos = 0;
 
     while(count-->0)
