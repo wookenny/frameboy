@@ -119,13 +119,15 @@ void GraphicsViewScaling::dragLeaveEvent(QDragLeaveEvent *e){
 }
 
 void GraphicsViewScaling::keyPressEvent( QKeyEvent * event ){
-    if(event->key() == Qt::Key_Shift)
+    if(event->key() == Qt::Key_Shift){
         shift_key_ = true;
-    event->accept();
+        event->accept();
+    }
 }
 
 void GraphicsViewScaling::keyReleaseEvent(QKeyEvent *event){
-    if(event->key() == Qt::Key_Shift)
+    if(event->key() == Qt::Key_Shift){
         shift_key_ = false;
-    event->accept();
+        event->accept();
+    }
 }

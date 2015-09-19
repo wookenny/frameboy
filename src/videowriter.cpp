@@ -107,7 +107,7 @@ bool VideoWriter::writeVideoFromImages_(){
         if (!input_cap.read(frame))
         break;
         i+=1;
-        QString msg = QString("encoding video ")+ QString::number( 100.*i / images_.size() )+"%";
+        QString msg = QString("encoding video ")+ QString::number( 100.*i / images_.size(),'f',3 )+"%";
         emit signalGUI(msg);
 
 
@@ -282,7 +282,7 @@ void ImageWriter::run()
             }
         }
         if(threadID_==0){
-            QString msg = "modifying frames: "+ QString::number(100.*i/vw_->images_.size())+"%";
+            QString msg = "modifying frames: "+ QString::number(100.*i/vw_->images_.size(),'f',3)+"%";
             vw_->sendSignalGUI(msg);
         }
     }

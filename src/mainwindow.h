@@ -22,8 +22,10 @@
 #include <QListWidgetItem>
 #include <QGraphicsScene>
 #include <QStringList>
+#include <QHash>
 #include "graphicspixmapitemwatermark.h"
 #include "videowriter.h"
+
 
 namespace Ui {
 class MainWindow;
@@ -53,11 +55,15 @@ protected:
 private:
     Ui::MainWindow *ui;
     QGraphicsScene  scene_;
+    QHash<QString, QPixmap*> frames_;
     GraphicsPixmapItemWatermark currentFrame_;
     QString filename_;
     VideoWriter vw_;
 
+    const int FRAME_SIZE_ = 1024;
+
     void updateSlider_();
+    void writeVideo_();
 
 private slots:
     void on_actionExit_triggered();

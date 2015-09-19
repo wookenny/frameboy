@@ -87,6 +87,13 @@ void MainWindow::loadImages(const QStringList& files){
         item->setData(Qt::UserRole + 1, (*it));
         item->setToolTip(*it);
         ui->frameList->addItem( item );
+        //buffer frame with reduced size
+        if(not frames_.contains(*it)){
+            QPixmap pix(*it);
+            pix = pix.scaled(FRAME_SIZE_, FRAME_SIZE_, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+            QPixmap *copy = new QPixmap(pix);
+            frames_[*it] = copy;
+        }
     }
     updateSlider_();
     ui->load_watermark->setEnabled(true);
@@ -134,8 +141,7 @@ void MainWindow::on_destination_button_clicked()
     ui->destination_button->setToolTip(filename_);
 }
 
-void MainWindow::on_convertVideo_button_clicked()
-{
+void MainWindow::writeVideo_(){
     vw_.setOutputFilename(filename_);
     vw_.setFramerate(ui->framerateSpinBox->value());
     QStringList list;
@@ -151,13 +157,19 @@ void MainWindow::on_convertVideo_button_clicked()
     vw_.start();
 }
 
+void MainWindow::on_convertVideo_button_clicked()
+{
+    writeVideo_();
+}
+
 void MainWindow::setStatusBar(const QString &string){
      ui->statusBar->showMessage(string);
 }
 
 void MainWindow::showFrame(QListWidgetItem *i)
 {
-    currentFrame_.setPixmap( QPixmap(i->data((Qt::UserRole + 1)).toString() ));
+    //use buffering here
+    currentFrame_.setPixmap( *frames_[i->data((Qt::UserRole + 1)).toString()] );
     ui->graphicsView->setGraphicsSize(currentFrame_.pixmap().width(),currentFrame_.pixmap().height());
     ui->graphicsView->setSceneRect(0, 0, currentFrame_.pixmap().width(), currentFrame_.pixmap().height());
     ui->graphicsView->fitInView(ui->graphicsView->sceneRect(),Qt::KeepAspectRatio);
@@ -192,6 +204,15 @@ void MainWindow::show_alert(const QString &str){
 
 void MainWindow::on_delete_button_clicked()
 {
+    //delete selected from hashmap
+    //TODO: item might be twice in a list, but once in the hashmap!
+    //Find which items are removed ant not in list again!
+    /*
+    for(int row = 0; row < ui->frameList->count(); row++){
+        if(ui->frameList->item(row)->isSelected())
+            frames_.remove(ui->frameList->item(row));
+    } */
+    //delete from list
     qDeleteAll(ui->frameList->selectedItems());
     if(ui->frameList->count()==0){
         ui->load_watermark->setEnabled(false);
@@ -483,7 +504,10 @@ void MainWindow::keyPressEvent( QKeyEvent * event ){
         on_frameSlider_valueChanged((ui->frameList->currentRow()-1)%(ui->frameList->count()));
     }else if(event->key() == Qt::Key_Right) {//next frame
         on_frameSlider_valueChanged((ui->frameList->currentRow()+1)% (ui->frameList->count()));
-    }
+    }else if(event->key() == Qt::Key_Enter or event->key() == Qt::Key_Return)
+        //if(focus())
+        writeVideo_();
+
     event->accept();
 }
 
