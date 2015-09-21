@@ -4,13 +4,13 @@
 #
 #-------------------------------------------------
 
-QT       += core gui
+QT       += core gui concurrent
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 TARGET = frameboy
 TEMPLATE = app
-CONFIG += c++11
+#CONFIG += c++11
 QMAKE_CXXFLAGS += -std=c++11
 
 DEFINES += GIT_CURRENT_SHA1="\\\"$(shell git -C \""$$_PRO_FILE_PWD_"\" rev-parse --short  HEAD)\\\""
@@ -31,7 +31,7 @@ HEADERS  += src/mainwindow.h \
     src/graphicsviewscaling.h \
     src/graphicspixmapitemwatermark.h
 
-FORMS    += src/mainwindow.ui 
+FORMS    += src/mainwindow.ui
 
 
 
@@ -45,4 +45,3 @@ RESOURCES += \
     icons.qrc
 
 OTHER_FILES +=
-

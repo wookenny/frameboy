@@ -23,6 +23,7 @@
 #include <QGraphicsScene>
 #include <QStringList>
 #include <QHash>
+#include <QFuture>
 #include "graphicspixmapitemwatermark.h"
 #include "videowriter.h"
 
@@ -44,6 +45,7 @@ public:
 
     void loadImages();
     void loadImages(const QStringList& files);
+    void loadImages_(const QStringList& files);
     void loadWatermark();
     void loadWatermark(const QString& watermark);
     void remove_watermark();
@@ -52,13 +54,18 @@ protected:
     void keyPressEvent(QKeyEvent * event );
     void keyReleaseEvent(QKeyEvent *event);
 
+signals:
+    void signalGUI(const QString &msg);
+    void imagesLoaded(bool was_empty);
+
 private:
     Ui::MainWindow *ui;
     QGraphicsScene  scene_;
-    QHash<QString, QPixmap*> frames_;
+    QHash<QString, QPair<QPixmap,int> > frames_;
     GraphicsPixmapItemWatermark currentFrame_;
     QString filename_;
     VideoWriter vw_;
+    QFuture<void> future_;
 
     const int FRAME_SIZE_ = 1024;
 
@@ -93,6 +100,8 @@ private slots:
     void on_addImages_button_clicked();
     void on_actionAbout_triggered();
     void on_actionHelp_triggered();
+
+    void updateAfterImagesLoaded(bool was_empty);
 
     void dropEvent(QDropEvent* event);
     void dragEnterEvent(QDragEnterEvent *e);

@@ -21,6 +21,7 @@
 
 #include "graphicsviewscaling.h"
 #include "videowriter.h"
+
 #include "common.h"
 
 #include <QString>
@@ -31,7 +32,9 @@
 #include <QListWidgetItem>
 #include <QDebug>
 #include <QtCore>
+#include <QtConcurrent>
 #include <QFuture>
+#include <QtCore>
 #include <QString>
 #include <QDialogButtonBox>
 
@@ -54,10 +57,14 @@ MainWindow::MainWindow(QWidget *parent) :
                       this,SLOT(changeWatermarkOpacity(int)));
     QObject::connect(ui->graphicsView,SIGNAL(signalMoveTo(float,float)),
                       this,SLOT(moveWatermark(float,float)));
+
+    QObject::connect(this,SIGNAL(signalGUI(const QString&)),this,SLOT(setStatusBar(const QString&)));
+    QObject::connect(this,SIGNAL(imagesLoaded(bool)),this,SLOT(updateAfterImagesLoaded(bool)));
 }
 
 MainWindow::~MainWindow()
 {
+    future_.waitForFinished();
     vw_.exit();
     delete ui;
 
@@ -80,36 +87,50 @@ void MainWindow::loadImages( )
 }
 
 void MainWindow::loadImages(const QStringList& files){
-    bool was_empty = ui->frameList->count()==0;
-    for(auto it = files.begin(); it!=files.end();++it){
-        QListWidgetItem *item = new QListWidgetItem();
-        item->setData(Qt::DisplayRole, removePath(*it) );
-        item->setData(Qt::UserRole + 1, (*it));
-        item->setToolTip(*it);
-        ui->frameList->addItem( item );
-        //buffer frame with reduced size
-        if(not frames_.contains(*it)){
-            QPixmap pix(*it);
-            pix = pix.scaled(FRAME_SIZE_, FRAME_SIZE_, Qt::KeepAspectRatio, Qt::SmoothTransformation);
-            QPixmap *copy = new QPixmap(pix);
-            frames_[*it] = copy;
-        }
-    }
-    updateSlider_();
-    ui->load_watermark->setEnabled(true);
-    ui->actionLoad_Watermark->setEnabled(true);
 
-    adjustDuration();
-    if(was_empty and ui->frameList->count()>0){
-        ui->frameList->setCurrentRow(0);
-        showFrame(ui->frameList->item(0));
-    }
-    setStatusBar("frame images added");
+    future_ = QtConcurrent::run(this, &MainWindow::loadImages_, files);
+    setStatusBar("adding images ...");
+    //future.waitForFinished();
+}
+
+void MainWindow::loadImages_(const QStringList& files){
+        bool was_empty = ui->frameList->count()==0;
+        int count = 0;
+        for(auto it = files.begin(); it!=files.end();++it){
+            QListWidgetItem *item = new QListWidgetItem();
+            item->setData(Qt::DisplayRole, removePath(*it) );
+            item->setData(Qt::UserRole + 1, (*it));
+            item->setToolTip(*it);
+            ui->frameList->addItem( item );
+            //buffer frame with reduced size
+            if(not frames_.contains(*it)){
+                QPixmap pix(*it);
+                pix = pix.scaled(FRAME_SIZE_, FRAME_SIZE_, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+                frames_[*it] = QPair<QPixmap,int>(pix,0);
+            }else{
+                frames_[*it].second += 1;
+            }
+            emit signalGUI("added "+QString::number(++count)+" images");
+            emit imagesLoaded(was_empty);
+            was_empty = false;
+        }
+        emit signalGUI("added "+QString::number(count)+" frame images");
 }
 
 void MainWindow::on_actionLoad_Images_triggered()
 {
     loadImages();
+}
+
+void MainWindow::updateAfterImagesLoaded(bool was_empty){
+    updateSlider_();
+    ui->load_watermark->setEnabled(true);
+    ui->actionLoad_Watermark->setEnabled(true);
+    adjustDuration();
+    if(was_empty and ui->frameList->count()>0){
+        ui->frameList->setCurrentRow(0);
+        showFrame(ui->frameList->item(0));
+    }
 }
 
 void MainWindow::on_frameList_itemDoubleClicked(QListWidgetItem *item)
@@ -169,7 +190,7 @@ void MainWindow::setStatusBar(const QString &string){
 void MainWindow::showFrame(QListWidgetItem *i)
 {
     //use buffering here
-    currentFrame_.setPixmap( *frames_[i->data((Qt::UserRole + 1)).toString()] );
+    currentFrame_.setPixmap( frames_[i->data((Qt::UserRole + 1)).toString()].first );
     ui->graphicsView->setGraphicsSize(currentFrame_.pixmap().width(),currentFrame_.pixmap().height());
     ui->graphicsView->setSceneRect(0, 0, currentFrame_.pixmap().width(), currentFrame_.pixmap().height());
     ui->graphicsView->fitInView(ui->graphicsView->sceneRect(),Qt::KeepAspectRatio);
@@ -204,14 +225,15 @@ void MainWindow::show_alert(const QString &str){
 
 void MainWindow::on_delete_button_clicked()
 {
-    //delete selected from hashmap
-    //TODO: item might be twice in a list, but once in the hashmap!
-    //Find which items are removed ant not in list again!
-    /*
+    //delete selected from hashmap, if no other list item uses them
     for(int row = 0; row < ui->frameList->count(); row++){
-        if(ui->frameList->item(row)->isSelected())
-            frames_.remove(ui->frameList->item(row));
-    } */
+        if(ui->frameList->item(row)->isSelected()){
+            QString name = ui->frameList->item(row)->data((Qt::UserRole + 1)).toString();
+            frames_[name].second -=1;
+            if(frames_[name].second == 0)
+                frames_.remove(name);
+        }
+    }
     //delete from list
     qDeleteAll(ui->frameList->selectedItems());
     if(ui->frameList->count()==0){
